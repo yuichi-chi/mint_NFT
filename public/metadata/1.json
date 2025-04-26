@@ -1,0 +1,15 @@
+{
+  "name": "Unique Digital Collectible #1",
+  "description": "限定NFTコレクションの一部となる特別なデジタルアート。",
+  "image": "ipfs://QmYourImageCIDHere/1.png",
+  "attributes": [
+    {
+      "trait_type": "Collection",
+      "value": "Genesis"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Rare"
+    }
+  ]
+} 

@@ -1,0 +1,148 @@
+# NFT Project Blueprint
+version: 1.0.0
+
+# プロジェクト基本情報
+project:
+  name: Portfolio Launch NFT
+  description: Portfolio website launch commemoration NFT
+  author: Your Name
+  license: MIT
+
+# スマートコントラクトの設定
+contract:
+  name: PortfolioNFT
+  symbol: PNFT
+  baseURI: ipfs://QmYourBaseURI/
+  features:
+    - limitedSupply:
+        max: 1000
+        description: Maximum number of NFTs that can be minted by non-owners
+    - mintRestriction:
+        perAddress: 1
+        description: Maximum number of NFTs per address (except owner)
+        ownerBypass: true
+    - pricing:
+        price: 0.000001
+        unit: ETH
+        description: Price per NFT for non-owners
+        ownerMint:
+          enabled: true
+          price: 0
+          description: Owner can mint for free without limits
+    - ownership:
+        transferable: true
+        burnable: false
+    - metadata:
+        standard: ERC721
+        revealable: false
+        mutable: true
+
+# メタデータ設定
+metadata:
+  structure:
+    name: Portfolio Launch NFT #{tokenId}
+    description: This NFT commemorates the launch of my portfolio website
+    image: ipfs://QmYourImageURI/{tokenId}.png
+    attributes:
+      - trait_type: Launch Phase
+        value: Early Supporter
+      - trait_type: Website Version
+        value: v1.0
+      - trait_type: Access Level
+        value: VIP
+
+# デプロイメント設定
+deployment:
+  networks:
+    - name: sepolia
+      rpc: ${SEPOLIA_URL}
+      chainId: 11155111
+    - name: mainnet
+      rpc: ${MAINNET_URL}
+      chainId: 1
+  verification:
+    etherscan: true
+    sourcify: true
+
+# 開発環境設定
+development:
+  framework: hardhat
+  dependencies:
+    - "@openzeppelin/contracts": "^5.0.0"
+    - "dotenv": "^16.3.1"
+  devDependencies:
+    - "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+    - "hardhat": "^2.19.1"
+
+# スクリプト定義
+scripts:
+  deploy:
+    file: scripts/deploy.js
+    description: Deploy the NFT contract
+  mint:
+    file: scripts/mint.js
+    description: Mint new NFTs
+  setBaseURI:
+    file: scripts/setBaseURI.js
+    description: Update the base URI for NFT metadata
+  withdraw:
+    file: scripts/withdraw.js
+    description: Withdraw collected ETH from the contract
+
+# テスト仕様
+tests:
+  files:
+    - test/NFT.test.js
+  coverage:
+    required: true
+    minimum: 90
+  scenarios:
+    - name: Deployment
+      tests:
+        - Correct name and symbol
+        - Correct initial state
+        - Owner permissions
+    - name: Minting
+      tests:
+        - Correct payment
+        - Supply limits
+        - Address restrictions
+    - name: Metadata
+      tests:
+        - Base URI updates
+        - Token URI format
+    - name: Transfers
+      tests:
+        - Standard transfers
+        - Safe transfers
+    - name: Admin
+      tests:
+        - Withdraw functionality
+        - Owner-only functions
+
+# セキュリティ設定
+security:
+  features:
+    - reentrancyGuard: true
+    - pausable: false
+    - upgradeable: false
+  audit:
+    required: true
+    scope:
+      - Smart Contract
+      - Deployment Scripts
+      - Access Control
+
+# ドキュメント要件
+documentation:
+  sections:
+    - Overview
+    - Installation
+    - Deployment
+    - Testing
+    - Security
+    - Maintenance
+  formats:
+    - README.md
+    - Technical Specification
+    - API Documentation 
