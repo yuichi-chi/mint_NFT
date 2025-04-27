@@ -1,128 +1,213 @@
-# NFT Minting DApp
+# NFTコントラクトデプロイ手順書　NFT Contract Deployment Guide
 
-Sepoliaテストネットワーク上で動作するNFTミンティングDAppです。Next.jsとHardhatを使用して構築されています。
+このドキュメントでは、NFTコントラクトのSepoliaテストネットワークへのデプロイ手順を詳細に説明します。
+This document provides a detailed guide on how to deploy an NFT contract to the Sepolia test network.
 
-## 機能
+## 目次
+1. [前提条件](#前提条件)
+2. [Gitからのダウンロード](#gitからのダウンロード)
+3. [必要なライブラリのインストール](#必要なライブラリのインストール)
+4. [Alchemyのセットアップ](#alchemyのセットアップ)
+5. [環境変数の設定](#環境変数の設定)
+6. [デプロイ手順](#デプロイ手順)
+7. [デプロイ後の確認](#デプロイ後の確認)
+8. [トラブルシューティング](#トラブルシューティング)
+9. [セキュリティガイドライン](#セキュリティガイドライン)
 
-- MetaMaskウォレットとの連携
-- SepoliaテストネットワークでのNFTミント
-- フォーセット機能（Sepolia ETHの取得）
-- NFTのメタデータ管理
-- IPFSとの連携
+## 前提条件
 
-## 必要条件
-
+### 必要なソフトウェア
 - Node.js (v16以上)
+  - https://nodejs.org/ からダウンロード
 - MetaMaskウォレット
-- SepoliaテストネットワークのETH
+  - https://metamask.io/ からブラウザ拡張機能をインストール
+  - アカウントを作成し、秘密鍵を安全に保管(`.env`に後で記載するため)
 
-## セットアップ
+## Gitからのダウンロード
 
-1. リポジトリのクローン
+1. **リポジトリのクローン**
 ```bash
-git clone <リポジトリURL>
-cd nft
+# プロジェクトディレクトリで実行
+git clone https://github.com/yuichi-chi/mint_NFT.git
+cd mint_NFT
 ```
 
-2. 依存関係のインストール
+## 必要なライブラリのインストール
+
+### 1. プロジェクトの初期化
 ```bash
-# プロジェクトルートで
-npm install
-
-# frontendディレクトリで
-cd frontend
-npm install
+# プロジェクトルートで実行
+npm init -y
 ```
 
-3. 環境変数の設定
-`.env.local`ファイルを作成し、以下の変数を設定：
-```env
-NEXT_PUBLIC_CONTRACT_ADDRESS=あなたのコントラクトアドレス
-NEXT_PUBLIC_INFURA_PROJECT_ID=あなたのInfuraプロジェクトID
-```
-
-## 使用方法
-
-1. 開発サーバーの起動
+### 2. Hardhatと関連ライブラリのインストール
 ```bash
-cd frontend
-npm run dev
+# スマートコントラクト開発用
+npm install --save-dev @nomicfoundation/hardhat-toolbox hardhat #スマコンのコンパイル・デプロイ用開発環境
+npm install --save-dev @nomicfoundation/hardhat-verify
+npm install --save-dev hardhat-gas-reporter
+npm install --save-dev ethers #ブロックチェーン接続に使用
+npm install --save-dev @typechain/ethers-v6 #以下ts用
+npm install --save-dev @typechain/hardhat
+npm install --save-dev typechain
+npm install --save-dev typescript
+npm install --save-dev ts-node
+# OpenZeppelinコントラクト
+npm install @openzeppelin/contracts
+# 環境変数管理
+npm install dotenv
+# IPFS関連(NFTサムネイル設定用)
+npm install ipfs-http-client form-data axios
 ```
 
-2. ブラウザで`http://localhost:3000`にアクセス
-
-3. MetaMaskでSepoliaテストネットワークに接続
-
-4. フォーセットからSepolia ETHを取得
-
-5. NFTをミント
-
-## プロジェクト構造
-
+### 3. プロジェクト構造の確認
+以下のような構造になっていることを確認：
 ```
-nft/
+root/
 ├── contracts/          # スマートコントラクト
-├── frontend/          # Next.jsフロントエンド
-├── scripts/           # デプロイ・ミント用スクリプト
-├── test/             # テストファイル
-└── public/           # 静的ファイル
+├── frontend/           # ウェブ表示用
+├── scripts/           # デプロイスクリプト
+├── .env.example      # 環境変数を保管
+├── hardhat.config.js # Hardhat設定
+└── package.json      # 依存関係
 ```
 
-## 技術スタック
+### 4. .env.exampleを編集
+`.env.example`をrenameし `.env`に変更
+metamask の private_key を`.env`に保存
 
-- **フロントエンド**
-  - Next.js
-  - TypeScript
-  - Tailwind CSS
-  - Web3.js
 
-- **スマートコントラクト**
-  - Solidity
-  - Hardhat
-  - OpenZeppelin
+## Alchemyのセットアップ
 
-## 開発者向け情報
+1. **Alchemyアカウントの作成**
+   - https://www.alchemy.com/ にアクセス
+   - アカウントを作成
 
-### コントラクトのデプロイ
+2. **APIキーの取得**
+   - ダッシュボードで「Create New App」をクリック
+   - 以下の情報を入力：
+     - App Name: ***(=your project name)
+     - use case: NFTs
+     - Chain: Ethereum
+   - 「Create App」をクリック
+   - network tab:Mainnet > sepolia に変更
+   - https://eth-sepolia.g.alchemy.com/v2/your_api_key を`.env`に保存
 
-1. コントラクトのコンパイル
+
+### Pinataのセットアップ
+
+1. **アカウントの作成**
+   - https://app.pinata.cloud/ にアクセス
+   - 「Sign Up」をクリックしてアカウントを作成
+
+2. **APIキーの取得**
+   - ダッシュボードにログイン
+   - 「API Keys」タブをクリック
+   - 「New Key」をクリック
+   - キー名を入力（例：NFT-Minting）
+   - 生成されたAPIキーとシークレットキーをコピー
+   - `.env`ファイルの`PINATA_API_KEY`と`PINATA_SECRET_KEY`に保存
+
+
+## metadata作成
+今回はすべてのNFTで同じ画像を使用（※Pinataのファイル数上限が500のため）
+   - それぞれ異なる画像を設定する場合はそれぞれのCIDをメタデータに含める必要がある
+NFT用画像をPinataのFILESにアップロードし、取得したCIDを`.env`に保存
+```bash
+node scripts/generateMetadata.js
+```
+   - この作成した400個のメタデータを "metadata" フォルダごと pinata にアップロードする
+      - "+ add" ボタンからアップロード可能
+   - "metadata"フォルダのCIDを取得し`.env`に保存
+
+   
+## デプロイ手順
+
+1. **Sepolia ETHの取得**
+   - fauset サイトから sepolia ETH を入手する。デプロイにはガス代が必要。
+      - https://docs.metamask.io/developer-tools/faucet/ #メインネットでの活動量による
+      - https://www.alchemy.com/faucets/ethereum-sepolia #メインネットで0.001ETH保有
+      - https://cloud.google.com/application/web3/faucet/ethereum/sepolia #メインネットで0.001ETH保有
+      - https://sepolia-faucet.pk910.de/#/ #これが一番効率がいい。2.5sepoETH/12h
+
+2. **コントラクトのコンパイル**
+root/contracts/MyNFT.sol を編集することでNFTの設定を変更できる。
+   -例) max_supply, mint_price 等
 ```bash
 npx hardhat compile
 ```
 
-2. デプロイ
+3. **デプロイの実行**
 ```bash
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-### メタデータの管理
+## デプロイ後の確認
 
-1. メタデータの生成
-```bash
-node scripts/generateMetadata.js
-```
+1. **Alchemy Explorerでの確認**
+   - https://dashboard.alchemy.com/ にアクセス
+   - アプリを選択
+   - 「Explorer」タブでトランザクションを確認
 
-2. IPFSへのアップロード
-```bash
-node scripts/uploadToIPFS.js
-```
+3. **環境変数の更新**
+   - デプロイ後に表示されるコントラクトアドレスを`.env`に保存
 
-### テストの実行
 
-```bash
-npx hardhat test
-```
+
+### よくある問題と解決策
+
+1. **接続エラー**
+   - AlchemyのAPIキーが正しいか確認
+   - ネットワーク設定が正しいか確認
+   - アカウントに十分なETHがあるか確認
+
+2. **ガス関連のエラー**
+   - ガス設定を調整：
+     ```javascript
+     // hardhat.config.jsに追加
+     networks: {
+       sepolia: {
+         url: `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+         accounts: [process.env.PRIVATE_KEY],
+         gasPrice: await ethers.provider.getGasPrice(),
+         gas: 5000000
+       }
+     }
+     ```
+
+3. **コンパイルエラー**
+   - Solidityのバージョンを確認
+   - 依存関係のバージョンを確認
+   - キャッシュをクリア：
+     ```bash
+     npx hardhat clean
+     ```
+
+## セキュリティガイドライン
+
+1. **秘密鍵の管理**
+   - `.env`ファイルは`.gitignore`に追加されていることを確認
+   - 秘密鍵は絶対に公開しない
+   - 定期的にキーをローテーション
+
+2. **APIキーの管理**
+   - 環境変数を使用
+   - キーをバージョン管理に含めない
+   - 必要最小限の権限を設定
+
+3. **レート制限の管理**
+   - Alchemyのダッシュボードで使用量を監視
+   - 必要に応じてプランをアップグレード
+
+## 追加リソース
+
+- [Alchemy Documentation](https://docs.alchemy.com/)
+- [Hardhat Documentation](https://hardhat.org/docs)
+- [Sepolia Faucet](https://sepoliafaucet.com/)
+- [Etherscan Sepolia](https://sepolia.etherscan.io/)
 
 ## 注意事項
 
-- このプロジェクトはSepoliaテストネットワーク用です
+- この手順書はSepoliaテストネットワーク用です
 - 本番環境で使用する場合は、適切なセキュリティ対策を実施してください
-- メタデータはIPFSにアップロードする必要があります
-
-## ライセンス
-
-MIT
-
-## 貢献
-
-プルリクエストやイシューは歓迎します。大きな変更の場合は、まずイシューを開いて議論してください 
+- デプロイ前に十分なテストを実施してください 
