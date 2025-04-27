@@ -2,6 +2,9 @@
 
 このドキュメントでは、NFTコントラクトのSepoliaテストネットワークへのデプロイ手順を詳細に説明します。
 This document provides a detailed guide on how to deploy an NFT contract to the Sepolia test network.
+開発者のデプロイしたNFTは  
+[https://mint-nft-2b4c.vercel.app/](https://mint-nft-2b4c.vercel.app/)  
+でミントできます。
 
 ## 目次
 1. [前提条件](#前提条件)
