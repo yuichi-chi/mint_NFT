@@ -43,7 +43,7 @@ export default function Home() {
   useEffect(() => {
     fetchBalance();
     fetchFaucetBalance();
-  }, [web3, account]);
+  }, [web3, account, fetchBalance, fetchFaucetBalance]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -52,7 +52,7 @@ export default function Home() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [web3, account]);
+  }, [web3, account, fetchBalance, fetchFaucetBalance]);
 
   return (
     <div className="min-h-screen bg-black text-white">
