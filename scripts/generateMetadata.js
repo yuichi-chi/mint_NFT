@@ -2,8 +2,11 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
-// 新しい画像のIPFSハッシュ
-const IMAGE_HASH = "bafybeicemi3w5q2auh5ueqei4d6de3zongfitsgwjhyopje7dkkveqcbuq";
+// 環境変数から画像のIPFSハッシュを取得
+const IMAGE_HASH = process.env.IPFS_IMAGE_HASH;
+if (!IMAGE_HASH) {
+    throw new Error("IPFS_IMAGE_HASH is not set in .env file");
+}
 
 async function main() {
     const metadataDir = path.join(__dirname, '../metadata');
@@ -13,28 +16,28 @@ async function main() {
         fs.mkdirSync(metadataDir, { recursive: true });
     }
 
-    // 577個のメタデータを生成（アップロード済みの数）
-    for (let i = 1; i <= 577; i++) {
+    // 400個のメタデータを生成
+    for (let i = 1; i <= 400; i++) {
         const metadata = {
-            name: `Grumpy Black Cat #${i}`,
-            description: "A mysterious black cat with emerald eyes, known for its perpetually grumpy expression. Despite its stern look, it brings luck to its owner.",
+            name: `Portfolio Launch NFT #${i}`,
+            description: "This NFT commemorates the launch of my portfolio website. Each token represents a unique piece of digital art celebrating this milestone.",
             image: `ipfs://${IMAGE_HASH}`,
             attributes: [
                 {
-                    trait_type: "Species",
-                    value: "Cat"
+                    trait_type: "Launch Phase",
+                    value: "Early Supporter"
                 },
                 {
-                    trait_type: "Color",
-                    value: "Black"
+                    trait_type: "Website Version",
+                    value: "v1.0"
                 },
                 {
-                    trait_type: "Expression",
-                    value: "Grumpy"
+                    trait_type: "Access Level",
+                    value: "VIP"
                 },
                 {
-                    trait_type: "Eye Color",
-                    value: "Emerald"
+                    trait_type: "Edition",
+                    value: "Limited"
                 }
             ]
         };

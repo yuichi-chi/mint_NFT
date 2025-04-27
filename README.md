@@ -1,75 +1,128 @@
-# NFT Mint App
+# NFT Minting DApp
 
-## NFT画像とメタデータの設定手順
+Sepoliaテストネットワーク上で動作するNFTミンティングDAppです。Next.jsとHardhatを使用して構築されています。
 
-### 1. IPFSへのアップロード
+## 機能
 
-1. NFT画像の準備
-   - `assets/images/` ディレクトリに画像ファイルを配置
-   - 推奨フォーマット: PNG, 1500x1500px
+- MetaMaskウォレットとの連携
+- SepoliaテストネットワークでのNFTミント
+- フォーセット機能（Sepolia ETHの取得）
+- NFTのメタデータ管理
+- IPFSとの連携
 
-2. [Pinata](https://www.pinata.cloud/)でアカウントを作成
+## 必要条件
 
-3. 画像のアップロード
-   - Pinataにログイン
-   - "Upload" → "File"を選択
-   - 画像ファイルをアップロード
-   - アップロード後、CIDをコピー
+- Node.js (v16以上)
+- MetaMaskウォレット
+- SepoliaテストネットワークのETH
 
-4. メタデータの更新
-   - `public/metadata/1.json`の`image`フィールドを更新
-   - `ipfs://あなたの画像のCID/ファイル名`の形式で設定
+## セットアップ
 
-5. メタデータのアップロード
-   - 更新したメタデータJSONファイルをPinataにアップロード
-   - 取得したCIDをスマートコントラクトの`tokenURI`として使用
-
-### 2. ローカルでのテスト
-
-1. 画像の配置
-   ```bash
-   cp your-image.png public/nft-preview.png
-   ```
-
-2. メタデータの確認
-   ```bash
-   cat public/metadata/1.json
-   ```
-
-### 3. 本番環境での注意点
-
-- IPFSにアップロードした画像とメタデータは永続的に保存されます
-- Pinataで "Pin" 状態を維持することが重要です
-- バックアップとしてローカルにもファイルを保管してください
-
-### 4. 画像の要件
-
-- 推奨サイズ: 1500x1500px
-- 最大ファイルサイズ: 10MB
-- サポートフォーマット: PNG, JPG, GIF
-- アスペクト比: 1:1 (正方形)
-
-### 5. メタデータの構造
-
-```json
-{
-  "name": "コレクション名 #トークンID",
-  "description": "NFTの説明",
-  "image": "ipfs://CID/filename.png",
-  "attributes": [
-    {
-      "trait_type": "属性名",
-      "value": "値"
-    }
-  ]
-}
+1. リポジトリのクローン
+```bash
+git clone <リポジトリURL>
+cd nft
 ```
+
+2. 依存関係のインストール
+```bash
+# プロジェクトルートで
+npm install
+
+# frontendディレクトリで
+cd frontend
+npm install
+```
+
+3. 環境変数の設定
+`.env.local`ファイルを作成し、以下の変数を設定：
+```env
+NEXT_PUBLIC_CONTRACT_ADDRESS=あなたのコントラクトアドレス
+NEXT_PUBLIC_INFURA_PROJECT_ID=あなたのInfuraプロジェクトID
+```
+
+## 使用方法
+
+1. 開発サーバーの起動
+```bash
+cd frontend
+npm run dev
+```
+
+2. ブラウザで`http://localhost:3000`にアクセス
+
+3. MetaMaskでSepoliaテストネットワークに接続
+
+4. フォーセットからSepolia ETHを取得
+
+5. NFTをミント
+
+## プロジェクト構造
+
+```
+nft/
+├── contracts/          # スマートコントラクト
+├── frontend/          # Next.jsフロントエンド
+├── scripts/           # デプロイ・ミント用スクリプト
+├── test/             # テストファイル
+└── public/           # 静的ファイル
+```
+
+## 技術スタック
+
+- **フロントエンド**
+  - Next.js
+  - TypeScript
+  - Tailwind CSS
+  - Web3.js
+
+- **スマートコントラクト**
+  - Solidity
+  - Hardhat
+  - OpenZeppelin
 
 ## 開発者向け情報
 
-スマートコントラクトの`tokenURI`関数は、以下の形式のURIを返す必要があります：
-```
-ipfs://あなたのメタデータのCID/1.json
+### コントラクトのデプロイ
+
+1. コントラクトのコンパイル
+```bash
+npx hardhat compile
 ```
 
-これにより、OpenSeaなどのNFTマーケットプレイスで正しく表示されます。 
+2. デプロイ
+```bash
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+### メタデータの管理
+
+1. メタデータの生成
+```bash
+node scripts/generateMetadata.js
+```
+
+2. IPFSへのアップロード
+```bash
+node scripts/uploadToIPFS.js
+```
+
+### テストの実行
+
+```bash
+npx hardhat test
+```
+
+## 注意事項
+
+- このプロジェクトはSepoliaテストネットワーク用です
+- 本番環境で使用する場合は、適切なセキュリティ対策を実施してください
+- メタデータはIPFSにアップロードする必要があります
+
+## ライセンス
+
+MIT
+
+## 貢献
+
+プルリクエストやイシューは歓迎します。大きな変更の場合は、まずイシューを開いて議論してください 
