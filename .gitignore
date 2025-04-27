@@ -96,7 +96,4 @@ next-env.d.ts
 
 # Project specific
 metadata/*.json
-*.empty
-
-# Frontend backup
-frontend_backup/ 
+*.empty 
