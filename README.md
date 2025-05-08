@@ -62,7 +62,7 @@ npm install ipfs-http-client form-data axios
 ```
 
 ### 3. プロジェクト構造の確認
-以下のような構造になっていることを確認：
+以下のような構造になっていることを確認
 ```
 root/
 ├── contracts/          # スマートコントラクト
